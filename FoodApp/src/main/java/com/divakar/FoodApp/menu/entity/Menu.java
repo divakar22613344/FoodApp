@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,18 +36,18 @@ public class Menu {
     public String name;
     public String description;
 
-
     private BigDecimal price;
-    private  String imageUrl;
+    private String imageUrl;
 
-    @ManyToOne //Many food items can belong to one category
+    @ManyToOne(fetch = FetchType.EAGER) // Many food items can belong to one category
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToMany(mappedBy = "menu",cascade = CascadeType.ALL) // One menu item can have many order items
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL) // One menu item can have many order items
     private List<OrderItem> orderItems;
 
-    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true) // One menu item can have many reviews
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, orphanRemoval = true) // One menu item can have many
+                                                                                   // reviews
     private List<Review> reviews;
 
 }

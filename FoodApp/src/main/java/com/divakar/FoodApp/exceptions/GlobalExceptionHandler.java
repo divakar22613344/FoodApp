@@ -2,6 +2,7 @@ package com.divakar.FoodApp.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -9,74 +10,86 @@ import com.divakar.FoodApp.response.Response;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response<?>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .findFirst()
+                .orElse("Validation failed");
+
+        Response<?> response = Response.builder()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .message(errorMessage)
+                .build();
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Response<?>> handleAllUnknownExceptions(Exception ex){
+    public ResponseEntity<Response<?>> handleAllUnknownExceptions(Exception ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Response<?>> handleNotFoundException(NotFoundException ex){
+    public ResponseEntity<Response<?>> handleNotFoundException(NotFoundException ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.NOT_FOUND.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<Response<?>> handleBadRequestException(BadRequestException ex){
+    public ResponseEntity<Response<?>> handleBadRequestException(BadRequestException ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-
     @ExceptionHandler(PaymentProcessingException.class)
-    public ResponseEntity<Response<?>> handlePaymentProcessingException(PaymentProcessingException ex){
+    public ResponseEntity<Response<?>> handlePaymentProcessingException(PaymentProcessingException ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.BAD_GATEWAY.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.BAD_GATEWAY);
+        return new ResponseEntity<>(response, HttpStatus.BAD_GATEWAY);
     }
 
-
     @ExceptionHandler(UnauthorizedAccessException.class)
-    public ResponseEntity<Response<?>> handleUnauthorizedAccessException(UnauthorizedAccessException ex){
+    public ResponseEntity<Response<?>> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Response<?>> handleIllegalArgumentException(IllegalArgumentException ex){
+    public ResponseEntity<Response<?>> handleIllegalArgumentException(IllegalArgumentException ex) {
 
         Response<?> response = Response.builder()
                 .statusCode(HttpStatus.BAD_REQUEST.value())
                 .message(ex.getMessage())
                 .build();
 
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }
