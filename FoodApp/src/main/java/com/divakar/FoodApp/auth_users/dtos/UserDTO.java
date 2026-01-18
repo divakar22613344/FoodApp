@@ -19,6 +19,7 @@ public class UserDTO {
     private String name;
     private String phoneNumber;
     private String profileUrl;
+    private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

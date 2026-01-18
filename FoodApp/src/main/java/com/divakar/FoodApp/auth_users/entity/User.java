@@ -12,6 +12,7 @@ import com.divakar.FoodApp.role.entity.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -55,24 +56,21 @@ public class User {
 
     private boolean isActive;
 
-    @ManyToMany // one user can have many roles, many roles can belong to many users
-    @JoinTable(
-        name = "users_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @ManyToMany(fetch = FetchType.EAGER) // one user can have many roles, many roles can belong to many users
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many orders, one order belongs to one
+                                                             // user,
+    private List<Order> orders; // if user is deleted, all their orders are deleted too, if order is
+                                // added/updated, user is not affected
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many orders, one order belongs to one user, 
-    private List<Order> orders;                              // if user is deleted, all their orders are deleted too, if order is added/updated, user is not affected
-
-    
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many reviews, one review belongs to one user
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many reviews, one review belongs to
+                                                             // one user
     private List<Review> reviews;
-    
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many payments, one payment belongs to one user
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // one user can have many payments, one payment belongs to
+                                                             // one user
     private List<Payment> payments;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // one user has one cart, one cart belongs to one user
@@ -80,7 +78,5 @@ public class User {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
-
 
 }
