@@ -30,24 +30,27 @@ public class SecurityFilter {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults()).exceptionHandling( ex ->
-            ex.accessDeniedHandler(customAccessDenialHandler).authenticationEntryPoint(customAuthenticationEntryPoint))
-            .authorizeHttpRequests(req -> req.requestMatchers("/api/auth/**","/api/categories/**","/api/menu/**","/api/reviews/**").permitAll()
-            .anyRequest().authenticated())
-            .sessionManagement(mag -> mag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
+                .exceptionHandling(ex -> ex.accessDeniedHandler(customAccessDenialHandler)
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers("/api/auth/**", "/api/categories/**", "/api/menu/**", "/api/reviews/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(mag -> mag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration){
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
