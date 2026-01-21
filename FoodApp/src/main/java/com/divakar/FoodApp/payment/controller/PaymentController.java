@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,18 +28,16 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/pay")
-    public ResponseEntity<Response<?>> intitializePayment(@RequestBody @Valid PaymentDTO paymentRequest) throws BadRequestException{
+    public ResponseEntity<Response<?>> intitializePayment(@RequestBody @Valid PaymentDTO paymentRequest)
+            throws BadRequestException {
         return ResponseEntity.ok(paymentService.initializePayment(paymentRequest));
     }
 
-
-
-    @PostMapping("/update")
-    public void updatePaymentForOrder(@RequestBody PaymentDTO paymentRequest)
+    @PutMapping("/update")
+    public ResponseEntity<Response<?>> updatePaymentForOrder(@RequestBody PaymentDTO paymentRequest)
             throws BadRequestException {
-        paymentService.updatePaymentForOrder(paymentRequest);
+        return ResponseEntity.ok(paymentService.updatePaymentForOrder(paymentRequest));
     }
-
 
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")

@@ -10,9 +10,10 @@ import com.divakar.FoodApp.response.Response;
 public interface PaymentService {
 
     Response<?> initializePayment(PaymentDTO paymentRequest) throws BadRequestException;
-    
-    void updatePaymentForOrder(PaymentDTO paymentDTO);
+
+    Response<?> updatePaymentForOrder(PaymentDTO paymentDTO);
 
     Response<List<PaymentDTO>> getAllPayments();
+
     Response<PaymentDTO> getPaymentById(Long paymentId);
 }

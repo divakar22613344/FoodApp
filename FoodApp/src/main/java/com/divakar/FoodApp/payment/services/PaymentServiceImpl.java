@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
-
-
 import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -49,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final TemplateEngine templateEngine;
     private final ModelMapper modelMapper;
 
-    @Value(("${strip.api.secret.key}"))
+    @Value(("${stripe.api.secret.key}"))
     private String secretKey;
 
     @Value(("${frontend.base.url}"))
@@ -85,82 +83,86 @@ public class PaymentServiceImpl implements PaymentService {
             return Response.builder().statusCode(HttpStatus.OK.value()).message("success").data(uniqueTransactionId)
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Error Creating payment unique transaction ID");
+            log.error("Error creating payment intent: ", e);
+            throw new RuntimeException("Error Creating payment unique transaction ID: " + e.getMessage(), e);
         }
     }
 
     @Override
-    public void updatePaymentForOrder(PaymentDTO paymentDTO) {
-        log.info("inside updatePaymentForOrder()");
-        Long orderId = paymentDTO.getOrderId();
+    public Response<?> updatePaymentForOrder(PaymentDTO paymentDTO) {
+        try {
+            log.info("inside updatePaymentForOrder()");
+            Long orderId = paymentDTO.getOrderId();
 
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order Not Found"));
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order Not Found"));
 
-        Payment payment = new Payment();
-        payment.setPaymentGateWay(PaymentGateWay.STRIPE);
-        payment.setAmount(paymentDTO.getAmount());
-        payment.setTransactionId(paymentDTO.getTransactionId());
-        payment.setPaymentStatus(paymentDTO.isSuccess() ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
-        payment.setPaymentDate(LocalDateTime.now());
-        payment.setOrder(order);
+            Payment payment = new Payment();
+            payment.setPaymentGateWay(PaymentGateWay.STRIPE);
+            payment.setAmount(paymentDTO.getAmount());
+            payment.setTransactionId(paymentDTO.getTransactionId());
+            payment.setPaymentStatus(paymentDTO.isSuccess() ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setOrder(order);
 
+            if (!paymentDTO.isSuccess()) {
+                payment.setFailureReason(paymentDTO.getFailureReason());
+            }
 
-        if(!paymentDTO.isSuccess()){
-            payment.setFailureReason(paymentDTO.getFailureReason());
-        }
+            paymentRepository.save(payment);
 
-        paymentRepository.save(payment);
+            // Prepare email context. Context should be. imported from thymeleaf
+            Context context = new Context(Locale.getDefault());
+            context.setVariable("customerName", order.getUser().getName());
+            context.setVariable("orderId", order.getId());
+            context.setVariable("currentYear", Year.now().getValue());
+            context.setVariable("amount", "$" + paymentDTO.getAmount());
 
-        // Prepare email context. Context should be. imported from thymeleaf
-        Context context = new Context(Locale.getDefault());
-        context.setVariable("customerName", order.getUser().getName());
-        context.setVariable("orderId", order.getId());
-        context.setVariable("currentYear", Year.now().getValue());
-        context.setVariable("amount", "$" + paymentDTO.getAmount());
+            if (paymentDTO.isSuccess()) {
+                order.setPaymentStatus(PaymentStatus.COMPLETED);
+                order.setOrderStatus(OrderStatus.CONFIRMED);
+                orderRepository.save(order);
 
+                log.info("PAYMENT IS SUCCESSFUL ABOUT TO SEND EMAIL");
 
+                // Adding success-specific variables
+                context.setVariable("transactionId", paymentDTO.getTransactionId());
+                context.setVariable("paymentDate",
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a")));
+                context.setVariable("frontendBaseUrl", this.frontendBaseUrl);
 
-        if (paymentDTO.isSuccess()) {
-            order.setPaymentStatus(PaymentStatus.COMPLETED);
-            order.setOrderStatus(OrderStatus.CONFIRMED);
-            orderRepository.save(order);
+                String emailBody = templateEngine.process("payment-success", context);
 
+                log.info("HAVE GOTTEN TEMPLATE");
 
-            log.info("PAYMENT IS SUCCESSFUL ABOUT TO SEND EMAIL");
+                notificationService.sendEmail(NotificationDTO.builder()
+                        .recipient(order.getUser().getEmail())
+                        .subject("Payment Successful - Order #" + order.getId())
+                        .body(emailBody)
+                        .isHtml(true)
+                        .build());
+            } else {
+                order.setPaymentStatus(PaymentStatus.FAILED);
+                order.setOrderStatus(OrderStatus.CANCELLED);
+                orderRepository.save(order);
 
-            // Adding success-specific variables
-            context.setVariable("transactionId", paymentDTO.getTransactionId());
-            context.setVariable("paymentDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a")));
-            context.setVariable("frontendBaseUrl", this.frontendBaseUrl);
+                log.info("PAYMENT IS FAILED ABOUT TO SEND EMAIL");
+                // Adding failure-specific variables
+                context.setVariable("failureReason", paymentDTO.getFailureReason());
 
-            String emailBody = templateEngine.process("payment-success", context);
+                String emailBody = templateEngine.process("payment-failed", context);
 
-            log.info("HAVE GOTTEN TEMPLATE");
-
-            notificationService.sendEmail(NotificationDTO.builder()
-                    .recipient(order.getUser().getEmail())
-                    .subject("Payment Successful - Order #" + order.getId())
-                    .body(emailBody)
-                    .isHtml(true)
-                    .build());
-        } else {
-            order.setPaymentStatus(PaymentStatus.FAILED);
-            order.setOrderStatus(OrderStatus.CANCELLED);
-            orderRepository.save(order);
-
-
-            log.info("PAYMENT IS FAILED ABOUT TO SEND EMAIL");
-            // Adding failure-specific variables
-            context.setVariable("failureReason", paymentDTO.getFailureReason());
-
-            String emailBody = templateEngine.process("payment-failed", context);
-
-            notificationService.sendEmail(NotificationDTO.builder()
-                    .recipient(order.getUser().getEmail())
-                    .subject("Payment Failed - Order #" + order.getId())
-                    .body(emailBody)
-                    .isHtml(true)
-                    .build());
+                notificationService.sendEmail(NotificationDTO.builder()
+                        .recipient(order.getUser().getEmail())
+                        .subject("Payment Failed - Order #" + order.getId())
+                        .body(emailBody)
+                        .isHtml(true)
+                        .build());
+            }
+            return Response.builder().statusCode(HttpStatus.OK.value()).message("Payment updated successfully").build();
+        } catch (Exception e) {
+            log.error("Error updating payment: ", e);
+            return Response.builder().statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Error updating payment: " + e.getMessage()).build();
         }
     }
 
@@ -168,17 +170,18 @@ public class PaymentServiceImpl implements PaymentService {
     public Response<List<PaymentDTO>> getAllPayments() {
         log.info("inside getAllPayments()");
 
-        List<Payment> paymentList = paymentRepository.findAll(Sort.by(Sort.Direction.DESC,"id"));
+        List<Payment> paymentList = paymentRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
-        List<PaymentDTO> paymentDTOS = modelMapper.map(paymentList,new TypeToken<List<PaymentDTO>>() {}.getType());
-
+        List<PaymentDTO> paymentDTOS = modelMapper.map(paymentList, new TypeToken<List<PaymentDTO>>() {
+        }.getType());
 
         paymentDTOS.forEach(item -> {
             item.setOrder(null);
             item.setUser(null);
         });
-        
-        return Response.<List<PaymentDTO>>builder().message("Payments retrieved successfully").data(paymentDTOS).build();
+
+        return Response.<List<PaymentDTO>>builder().message("Payments retrieved successfully").data(paymentDTOS)
+                .build();
     }
 
     @Override
@@ -186,7 +189,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         log.info("inside getPaymentById()");
 
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new NotFoundException("Payment Not FOUND"));
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException("Payment Not FOUND"));
         PaymentDTO paymentDTOS = modelMapper.map(payment, PaymentDTO.class);
 
         paymentDTOS.getUser().setRoles(null);
@@ -196,7 +200,6 @@ public class PaymentServiceImpl implements PaymentService {
             item.getMenu().setReviews(null);
         });
 
-        
         return Response.<PaymentDTO>builder()
                 .statusCode(HttpStatus.OK.value())
                 .message("payment retreived succeessfully by id")
