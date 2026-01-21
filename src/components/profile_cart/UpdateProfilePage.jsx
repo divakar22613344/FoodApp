@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import ApiService from "../../services/ApiService";
+import ApiService from "../../services/ApiService.js";
 import { useNavigate } from "react-router-dom";
-import { useError } from "../common/ErrorDisplay";
+import { useError } from "../common/ErrorDisplay.jsx";
 
 const UpdateProfilePage = () => {
   const [name, setName] = useState("");

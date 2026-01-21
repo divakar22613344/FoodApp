@@ -1,13 +1,15 @@
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useError } from "../common/ErrorDisplay";
+import { useError } from "../common/ErrorDisplay.jsx";
 import { useState } from "react";
-import ApiService from "../../services/ApiService";
+import ApiService from "../../services/ApiService.js";
 
 const LoginPage = () => {
   const { ErrorDisplay, showError } = useError();
   const navigate = useNavigate();
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const redirectPath = state?.from?.pathname || "/home";
+  const redirectSearch = state?.from?.search || "";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,7 +33,7 @@ const LoginPage = () => {
       if (response.statusCode === 200) {
         ApiService.saveToken(response.data.token);
         ApiService.saveRole(response.data.roles);
-        navigate(redirectPath, { replace: true });
+        navigate(redirectPath + redirectSearch, { replace: true });
       } else {
         showError(response.message);
       }

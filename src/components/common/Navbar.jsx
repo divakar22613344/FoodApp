@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import ApiService from "../../services/ApiService";
+import ApiService from "../../services/ApiService.js";
 
 const Navbar = () => {
   const isAuthenticated = ApiService.isAthenticated();

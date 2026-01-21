@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ApiService from "../../services/ApiService";
-import { useError } from "../common/ErrorDisplay"; // import custom error hook
+import ApiService from "../../services/ApiService.js";
+import { useError } from "../common/ErrorDisplay.jsx"; // import custom error hook
 
 const MenuDetailsPage = () => {
   const { id } = useParams();

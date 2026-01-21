@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ApiService from "../../services/ApiService";
-import { useError } from "../common/ErrorDisplay";
+import ApiService from "../../services/ApiService.js";
+import { useError } from "../common/ErrorDisplay.jsx";
 
 const AdminMenuFormPage = () => {
   const { id } = useParams();
@@ -47,8 +47,10 @@ const AdminMenuFormPage = () => {
       if (response.statusCode === 200) {
         setMenu({
           ...response.data,
-          price: response.data.price.toString(),
-          categoryId: response.data.categoryId.toString(),
+          price: response.data.price ? response.data.price.toString() : "",
+          categoryId: response.data.categoryId
+            ? response.data.categoryId.toString()
+            : "",
         });
       }
     } catch (error) {

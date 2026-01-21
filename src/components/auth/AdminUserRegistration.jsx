@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiService from "../../services/ApiService";
-import { useError } from "../common/ErrorDisplay";
+import ApiService from "../../services/ApiService.js";
+import { useError } from "../common/ErrorDisplay.jsx";
 
 const AdminUserRegistration = () => {
   // Use the error hook

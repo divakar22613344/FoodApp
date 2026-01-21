@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import ApiService from "./ApiService";
+import ApiService from "./ApiService.js";
 
 export const CustomerRoute = ({ element: Component }) => {
   const location = useLocation();

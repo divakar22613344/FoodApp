@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiService from "../../services/ApiService";
-import { useError } from "../common/ErrorDisplay";
+import ApiService from "../../services/ApiService.js";
+import { useError } from "../common/ErrorDisplay.jsx";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState([]);

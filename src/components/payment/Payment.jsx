@@ -6,8 +6,8 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import ApiService from "../../services/ApiService";
-import { useError } from "../common/ErrorDisplay";
+import ApiService from "../../services/ApiService.js";
+import { useError } from "../common/ErrorDisplay.jsx";
 
 // Load Stripe with your publishable key
 const stripeInstance = loadStripe(
@@ -65,22 +65,31 @@ const PaymentForm = ({ amount, orderId, onSuccess }) => {
         console.log("PAYMENT IS SUCCESSDED");
 
         // Step 3: Update backend with payment completion
-        const res = await ApiService.updateOrderPayment({
-          orderId,
-          amount,
-          transactionId: paymentIntent.id,
-          success: true,
-        });
+        try {
+          const res = await ApiService.updateOrderPayment({
+            orderId,
+            amount,
+            transactionId: paymentIntent.id,
+            success: true,
+          });
+        } catch (backendError) {
+          console.log("Backend update error: ", backendError.message);
+          // Payment was successful on Stripe, so proceed anyway
+        }
 
         onSuccess(paymentIntent);
       } else {
         // Step 3: Update backend with payment completion
-        const res = await ApiService.updateOrderPayment({
-          orderId,
-          amount,
-          transactionId: paymentIntent.id,
-          success: false,
-        });
+        try {
+          const res = await ApiService.updateOrderPayment({
+            orderId,
+            amount,
+            transactionId: paymentIntent.id,
+            success: false,
+          });
+        } catch (backendError) {
+          console.log("Backend update error: ", backendError.message);
+        }
       }
     } catch (error) {
       console.log("Payment Error: " + error);

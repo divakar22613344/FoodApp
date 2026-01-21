@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useError } from "../common/ErrorDisplay";
+import { useError } from "../common/ErrorDisplay.jsx";
 import Payment from "./Payment";
 
 const ProcessPaymenttPage = () => {
@@ -30,8 +30,8 @@ const ProcessPaymenttPage = () => {
     }
 
     setOrderDetails({
-      orderId: orderId,
-      amount: amount,
+      orderId: parseInt(orderId, 10), // Convert to integer
+      amount: parseFloat(amount), // Convert to float
     });
   }, [searchParams]);
 
