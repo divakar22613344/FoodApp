@@ -16,7 +16,6 @@
     <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-4.0.1-green?style=for-the-badge&logo=spring-boot" alt="Spring Boot"></a>&nbsp;
     <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.2-blue?style=for-the-badge&logo=react" alt="React"></a>&nbsp;
     <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-8.0-lightblue?style=for-the-badge&logo=mysql" alt="MySQL"></a>&nbsp;
-    <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License MIT"></a>
   </p>
   
   <!-- Description -->
