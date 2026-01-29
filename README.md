@@ -11,7 +11,7 @@
   
   <!-- Badges -->
   <p>
-    <a href="https://mealapi.in"><img src="https://img.shields.io/badge/Live%20Demo-Visit%20Now-brightgreen?style=for-the-badge" alt="Live Demo"></a>&nbsp;
+    <a href="http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home"><img src="https://img.shields.io/badge/Live%20Demo-Visit%20Now-brightgreen?style=for-the-badge" alt="Live Demo"></a>&nbsp;
     <a href="https://www.oracle.com/java/"><img src="https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=java" alt="Java 21"></a>&nbsp;
     <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-4.0.1-green?style=for-the-badge&logo=spring-boot" alt="Spring Boot"></a>&nbsp;
     <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19.2-blue?style=for-the-badge&logo=react" alt="React"></a>&nbsp;
@@ -23,7 +23,7 @@
   
   <!-- Quick Links -->
   <p>
-    <a href="https://mealapi.in"><strong>→ Visit Live App</strong></a> •
+    <a href="http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home"><strong>→ Visit Live App</strong></a> •
     <a href="#-overview"><strong>Overview</strong></a> •
     <a href="#-api-documentation"><strong>API Docs</strong></a> •
     <a href="#%EF%B8%8F-system-design-deep-dive"><strong>System Design</strong></a>
@@ -62,7 +62,7 @@ MealAPI is a **full-stack food ordering platform** designed with enterprise-grad
 
 ## 🌐 Live Demo
 
-**Visit the live application at: https://mealapi.in**
+**Visit the live application at: http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home**
 
 ### Test Credentials
 
@@ -292,7 +292,7 @@ public class Response<T> {
 
 ### Base URL
 - **Development**: `http://localhost:8090/api`
-- **Production**: `https://mealapi.in/api`
+- **Production**: `http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home/api`
 
 ### Authentication Endpoints
 
@@ -390,7 +390,7 @@ Response: { statusCode: 200, data: List<PaymentDTO> }
 
 ### Live Deployment
 
-**Application URL:** https://mealapi.in
+**Application URL:** http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home
 
 The application is deployed on AWS cloud infrastructure with the following setup:
 
@@ -498,14 +498,14 @@ npm run build
   <p><em>"Engineering food ordering, one commit at a time"</em></p>
   
   <p>
-    <a href="https://mealapi.in">
+    <a href="http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home">
       <strong>🌐 Visit Live Application →</strong>
     </a>
   </p>
   
   <p>
     <a href="https://github.com/divakar-chakravarty/FoodApp">⭐ Star on GitHub</a> •
-    <a href="https://mealapi.in">🚀 Live Demo</a> •
+    <a href="http://food-app-react-frontend.s3-website.eu-north-1.amazonaws.com/home">🚀 Live Demo</a> •
     <a href="LICENSE">📄 License (MIT)</a>
   </p>
   
